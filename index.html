@@ -34,10 +34,32 @@
       z-index: -1;
     }
 
+    /* Sevgi Barı */
+    #love-bar-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 25px;
+      background-color: #ffe4ed;
+      box-shadow: inset 0 2px 5px rgba(216, 27, 96, 0.4);
+      border-radius: 0 0 12px 12px;
+      overflow: hidden;
+      z-index: 1100;
+    }
+
+    #love-bar {
+      height: 100%;
+      width: 10%; /* Başlangıç %10 */
+      background: linear-gradient(90deg, #d81b60, #ff4081);
+      transition: width 1s ease;
+    }
+
+    /* main üstten boşluk, bar için */
     main {
       max-width: 900px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 60px 20px 20px 20px; /* üstte 60px boşluk verdik */
       background: rgba(255, 255, 255, 0.85);
       border-radius: 15px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
@@ -144,38 +166,13 @@
     #toggle-rain:hover {
       background-color: #ffe4ed;
     }
-
-    /* Sevgi Barı */
-    #love-bar-label {
-      font-weight: bold;
-      color: #d81b60;
-      font-size: 1.2em;
-      margin-top: 20px;
-      text-align: center;
-    }
-
-    #love-bar-container {
-      width: 100%;
-      max-width: 600px;
-      height: 30px;
-      background-color: #ffe4ed;
-      border-radius: 20px;
-      margin: 10px auto 30px auto;
-      box-shadow: inset 0 2px 5px rgba(216, 27, 96, 0.4);
-      overflow: hidden;
-    }
-
-    #love-bar {
-      height: 100%;
-      width: 10%; /* Başlangıçta %10 */
-      background: linear-gradient(90deg, #d81b60, #ff4081);
-      border-radius: 20px;
-      transition: width 1s ease;
-    }
-
   </style>
 </head>
 <body>
+
+  <div id="love-bar-container">
+    <div id="love-bar"></div>
+  </div>
 
   <canvas id="rain-canvas"></canvas>
   <button id="toggle-rain">🌧️ Yağmuru Kapat</button>
@@ -187,12 +184,6 @@
     <p>Her anımda sen varsın. Gülüşün, sesin, varlığın… Hepsi içimi ısıtan bir güneş gibi.</p>
     <p>Bu site, beraber geçirdiğimiz güzel anılardan birkaç tanesini bir araya getirdiğim küçük bir hatıra.</p>
     <p>Hep yanımda ol, hep benimle kal... Seni çok seviyorum. Affet beni balım. 🥺</p>
-
-    <!-- Sevgi Barı -->
-    <div id="love-bar-label">Aşkımın barı 💗</div>
-    <div id="love-bar-container">
-      <div id="love-bar"></div>
-    </div>
 
     <div class="gallery">
       <img src="https://i.hizliresim.com/87uxom4.jpg" alt="seni" />
@@ -256,68 +247,68 @@
       });
     }
 
-    function drawRain() {
+    function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)';
       ctx.lineWidth = 1;
-      ctx.beginPath();
+      ctx.lineCap = 'round';
+
       for (let i = 0; i < drops.length; i++) {
-        const d = drops[i];
+        let d = drops[i];
+        ctx.beginPath();
         ctx.moveTo(d.x, d.y);
         ctx.lineTo(d.x + d.xs, d.y + d.l);
-      }
-      ctx.stroke();
-      move();
-      animationId = requestAnimationFrame(drawRain);
-    }
+        ctx.stroke();
 
-    function move() {
-      for (let i = 0; i < drops.length; i++) {
-        const d = drops[i];
         d.x += d.xs;
         d.y += d.ys;
+
         if (d.y > canvas.height) {
           d.x = Math.random() * canvas.width;
           d.y = -20;
         }
       }
+      animationId = requestAnimationFrame(draw);
     }
+    draw();
 
-    drawRain();
-
+    // Yağmur aç/kapa butonu
     const toggleBtn = document.getElementById('toggle-rain');
     toggleBtn.addEventListener('click', () => {
       rainOn = !rainOn;
       if (rainOn) {
-        drawRain();
-        toggleBtn.textContent = '🌧️ Yağmuru Kapat';
-        canvas.style.display = 'block';
+        draw();
+        toggleBtn.textContent = "🌧️ Yağmuru Kapat";
       } else {
         cancelAnimationFrame(animationId);
-        toggleBtn.textContent = '☀️ Yağmuru Aç';
-        canvas.style.display = 'none';
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        toggleBtn.textContent = "🌧️ Yağmuru Aç";
       }
     });
 
-    // Sevgi Barı kodu
+    // Sevgi Barı 1000 gün sonunda dolacak şekilde gerçek zamanlı
     const loveBar = document.getElementById('love-bar');
-    const totalDays = 1000;
-    const startWidthPercent = 10; // %10 başlangıç
-    const endWidthPercent = 100; // %100 sonunda
+    const totalDays = 1000;  // toplam 1000 gün
+    const startWidthPercent = 10;  // %10 başlangıç
 
-    // Bugünün gün sayısı (örnek, bugün başlangıç kabul edelim)
-    // Sen istersen gerçek tarih farkı hesaplatabilirim
-    let daysPassed = 0;
+    // Sevgi barının başlangıç tarihi (örneğin ilişkinin başladığı gün)
+    const startDate = new Date('2025-01-01'); // Bunu kendi başlangıç tarihinle değiştir
 
     function updateLoveBar() {
-      daysPassed++;
-      if (daysPassed > totalDays) daysPassed = totalDays;
-      const widthPercent = startWidthPercent + ((endWidthPercent - startWidthPercent) * (daysPassed / totalDays));
-      loveBar.style.width = widthPercent + "%";
+      const now = new Date();
+      const diffTime = now - startDate; // milisaniye cinsinden fark
+      const diffDays = diffTime / (1000 * 60 * 60 * 24); // günü hesapla
+      let progress = diffDays / totalDays;
+
+      if (progress < 0) progress = 0; // henüz başlamadıysa 0
+      if (progress > 1) progress = 1;  // dolmuşsa 1
+
+      const widthPercent = startWidthPercent + progress * (100 - startWidthPercent);
+      loveBar.style.width = widthPercent + '%';
     }
 
-    // 1 gün = 1000 ms olarak hızlı gösterim (normalde 1 gün 86400000 ms)
-    setInterval(updateLoveBar, 1000);
+    updateLoveBar();
+    setInterval(updateLoveBar, 1000 * 60 * 60); // 1 saatte bir güncelle
   </script>
 </body>
 </html>
