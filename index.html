@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Herşeyime Balıma.</title>
+
+  <!-- Favicon doğru eklenmiş -->
+  <link rel="icon" type="image/png" href="https://i.hizliresim.com/bu7t9sk.jpg" />
+
   <style>
     *, *::before, *::after {
       box-sizing: border-box;
@@ -34,50 +38,9 @@
       z-index: -1;
     }
 
-    /* --- Sevgi Barı Alanı --- */
-    #love-bar-container {
-      position: fixed;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 900px;
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 12px;
-      padding: 8px 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      z-index: 20;
-      user-select: none;
-    }
-
-    #love-bar-title {
-      font-weight: bold;
-      color: #d81b60;
-      margin: 0 0 6px 0;
-      font-size: 1.1em;
-      text-align: center;
-    }
-
-    #love-bar {
-      width: 100%;
-      background: #f4c1d5;
-      border-radius: 8px;
-      height: 15px;
-      overflow: hidden;
-      box-shadow: inset 0 1px 3px rgba(255,255,255,0.6);
-    }
-
-    #love-bar-fill {
-      height: 100%;
-      width: 0;
-      background: linear-gradient(90deg, #d81b60, #ff5599);
-      border-radius: 8px;
-      transition: width 1s ease-in-out;
-    }
-
     main {
       max-width: 900px;
-      margin: 80px auto 0 auto; /* üstte sevgi barına yer açıldı */
+      margin: 60px auto 40px; /* Üstte bar için boşluk */
       padding: 20px;
       background: rgba(255, 255, 255, 0.85);
       border-radius: 15px;
@@ -185,6 +148,48 @@
     #toggle-rain:hover {
       background-color: #ffe4ed;
     }
+
+    /* Sevgi Barı */
+    #love-bar-container {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 900px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      padding: 8px 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      z-index: 20;
+      user-select: none;
+      text-align: center;
+    }
+
+    #love-bar-title {
+      font-weight: bold;
+      color: #d81b60;
+      margin: 0 0 6px 0;
+      font-size: 1.1em;
+    }
+
+    #love-bar {
+      width: 100%;
+      background: #f4c1d5;
+      border-radius: 8px;
+      height: 15px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(255,255,255,0.6);
+    }
+
+    #love-bar-fill {
+      height: 100%;
+      width: 10%; /* Başlangıç %10 */
+      background: linear-gradient(90deg, #d81b60, #ff5599);
+      border-radius: 8px;
+      transition: width 1s ease-in-out;
+    }
+
   </style>
 </head>
 <body>
@@ -226,6 +231,7 @@
       allow="autoplay; encrypted-media" 
       allowfullscreen>
     </iframe>
+
   </main>
 
   <script>
@@ -313,16 +319,22 @@
       }
     });
 
-    // Sevgi Barı Gün Hesabı ve Doldurma
+    // Sevgi Barı hesaplama
     const loveBarFill = document.getElementById('love-bar-fill');
-    const startValue = 100;
-    const maxValue = 1000;
+
+    // Başlangıç ve bitiş değerleri
+    const startValue = 100; // başlangıçta %10 dolu (100/1000)
+    const maxValue = 1000;  // toplam 1000 birim dolacak
+    const startDate = new Date('2022-01-01'); // Başlangıç tarihi, istediğin gibi ayarla
     const now = new Date();
-    const startDate = new Date('2022-01-01'); // Başlangıç tarihi (istediğin gibi değiştir)
     const diffDays = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
-    const limitedDays = Math.min(diffDays, 1000);
+    const limitedDays = Math.min(diffDays, 1000); // maksimum 1000 gün
+
+    // Sevgi değeri gün sayısına göre artar
     const loveValue = startValue + ((maxValue - startValue) / 1000) * limitedDays;
-    const percentage = ((loveValue - startValue) / (maxValue - startValue)) * 100;
+    const percentage = (loveValue / maxValue) * 100;
+
+    // Bar genişliğini ayarla
     loveBarFill.style.width = percentage + '%';
 
   </script>
