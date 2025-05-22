@@ -34,6 +34,38 @@
       z-index: -1;
     }
 
+    /* Sevgi Barı Stilleri */
+    #love-bar-container {
+      width: 90%;
+      max-width: 400px;
+      height: 25px;
+      background: #eee;
+      border-radius: 15px;
+      margin: 20px auto 10px auto;
+      box-shadow: 0 0 5px #d81b60cc inset;
+      position: relative;
+      z-index: 20;
+    }
+
+    #love-bar {
+      height: 100%;
+      width: 10%; /* Başlangıç %10 */
+      background: linear-gradient(90deg, #d81b60, #ff6ea1);
+      border-radius: 15px;
+      transition: width 1.5s ease;
+    }
+
+    #love-bar-label {
+      text-align: center;
+      font-weight: bold;
+      color: #d81b60;
+      margin: 0 0 15px 0;
+      font-size: 1.1em;
+      user-select: none;
+      position: relative;
+      z-index: 20;
+    }
+
     main {
       max-width: 900px;
       margin: 0 auto;
@@ -122,7 +154,7 @@
       width: 100vw;
       height: 100vh;
       pointer-events: none;
-      z-index: 100; /* DÜŞÜRÜLDÜ */
+      z-index: 999;
     }
 
     #toggle-rain {
@@ -148,6 +180,16 @@
 </head>
 <body>
 
+  <canvas id="rain-canvas"></canvas>
+  <button id="toggle-rain">🌧️ Yağmuru Kapat</button>
+
+  <!-- Sevgi Barı -->
+  <div id="love-bar-container"></div>
+  <div id="love-bar-label">Sevgi Barı 💗</div>
+  <div id="love-bar-container">
+    <div id="love-bar"></div>
+  </div>
+
   <main>
     <h1>Herşeyime Balıma 💗</h1>
 
@@ -166,17 +208,16 @@
     </div>
 
     <iframe 
+      width="100%" 
+      height="200" 
       src="https://www.youtube.com/embed/XfMBdq5iFnw?autoplay=1&mute=0" 
       title="Seni Çok Seviyorum - Mabel Matiz" 
       frameborder="0" 
       allow="autoplay; encrypted-media" 
       allowfullscreen>
     </iframe>
-  </main>
 
-  <!-- YAĞMUR EFEKTİ VE BUTONU EN ALTA TAŞINDI -->
-  <canvas id="rain-canvas"></canvas>
-  <button id="toggle-rain">🌧️ Yağmuru Kapat</button>
+  </main>
 
   <script>
     // Kayan yazılar
@@ -216,52 +257,86 @@
         y: Math.random() * canvas.height,
         l: Math.random() * 20 + 10,
         xs: Math.random() * 2 - 1,
-        ys: Math.random() * 10 + 10
+        ys: Math.random() * 5 + 4
       });
     }
 
-    function drawRain() {
+    function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
       ctx.lineWidth = 1;
-      ctx.beginPath();
-      for (let i = 0; i < drops.length; i++) {
-        const d = drops[i];
-        ctx.moveTo(d.x, d.y);
-        ctx.lineTo(d.x + d.xs, d.y + d.l);
-      }
-      ctx.stroke();
-      move();
-      animationId = requestAnimationFrame(drawRain);
-    }
+      ctx.lineCap = 'round';
 
-    function move() {
       for (let i = 0; i < drops.length; i++) {
-        const d = drops[i];
+        let d = drops[i];
+        ctx.beginPath();
+        ctx.moveTo(d.x, d.y);
+        ctx.lineTo(d.x + d.xs * d.l * 0.5, d.y + d.ys * d.l);
+        ctx.stroke();
+
         d.x += d.xs;
         d.y += d.ys;
+
         if (d.y > canvas.height) {
           d.x = Math.random() * canvas.width;
           d.y = -20;
         }
+        if (d.x > canvas.width) {
+          d.x = 0;
+        }
+        if (d.x < 0) {
+          d.x = canvas.width;
+        }
       }
+
+      animationId = requestAnimationFrame(draw);
     }
 
-    drawRain();
+    draw();
 
-    const toggleBtn = document.getElementById('toggle-rain');
-    toggleBtn.addEventListener('click', () => {
-      rainOn = !rainOn;
+    document.getElementById('toggle-rain').addEventListener('click', () => {
       if (rainOn) {
-        drawRain();
-        toggleBtn.textContent = '🌧️ Yağmuru Kapat';
-        canvas.style.display = 'block';
-      } else {
         cancelAnimationFrame(animationId);
-        toggleBtn.textContent = '☀️ Yağmuru Aç';
-        canvas.style.display = 'none';
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        rainOn = false;
+        document.getElementById('toggle-rain').textContent = "🌧️ Yağmuru Aç";
+      } else {
+        rainOn = true;
+        draw();
+        document.getElementById('toggle-rain').textContent = "🌧️ Yağmuru Kapat";
       }
     });
+
+
+    // Sevgi Barı Scripti
+    const startPercent = 10; // %10 başlangıç
+    const totalDays = 1000;  // toplam gün sayısı
+    const maxPercent = 100;  // %100 doluluk
+
+    // Günlük artış miktarı
+    const dailyIncrease = (maxPercent - startPercent) / totalDays;
+
+    // Başlangıç tarihi localStorage'da saklanıyor, yoksa bugünün tarihi
+    const startDateStr = localStorage.getItem('loveBarStartDate') || new Date().toISOString().slice(0,10);
+
+    if (!localStorage.getItem('loveBarStartDate')) {
+      localStorage.setItem('loveBarStartDate', startDateStr);
+    }
+
+    const startDate = new Date(startDateStr);
+    const today = new Date();
+
+    const diffTime = today.getTime() - startDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    let currentPercent = startPercent + (dailyIncrease * diffDays);
+
+    if (currentPercent > maxPercent) currentPercent = maxPercent;
+
+    const loveBar = document.getElementById('love-bar');
+    loveBar.style.width = currentPercent + '%';
+
   </script>
+
 </body>
 </html>
