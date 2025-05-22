@@ -81,25 +81,25 @@
       display: block;
     }
 
-    /* Kayan yazılar stili */
+    /* Düz şekilde aşağı kayan yazı stili */
     .floating-text {
       position: fixed;
-      top: 0;
+      top: -50px;
       font-weight: bold;
       color: #d81b60cc;
       font-size: 1.4em;
       white-space: nowrap;
       user-select: none;
       text-shadow: 0 0 5px #d81b60dd;
-      opacity: 0.8;
+      opacity: 0.9;
       pointer-events: none;
       z-index: 1000;
-      /* Başlangıç konumu ve animasyon için stil JS ile ayarlanacak */
+      animation: floatDown 10s linear forwards;
     }
 
-    @keyframes floatDiagonalRight {
+    @keyframes floatDown {
       0% {
-        transform: translate(0, -10vh);
+        transform: translateY(-10vh);
         opacity: 0;
       }
       10% {
@@ -109,28 +109,10 @@
         opacity: 1;
       }
       100% {
-        transform: translate(-50vw, 100vh);
+        transform: translateY(110vh);
         opacity: 0;
       }
     }
-
-    @keyframes floatDiagonalLeft {
-      0% {
-        transform: translate(0, -10vh);
-        opacity: 0;
-      }
-      10% {
-        opacity: 1;
-      }
-      90% {
-        opacity: 1;
-      }
-      100% {
-        transform: translate(50vw, 100vh);
-        opacity: 0;
-      }
-    }
-
   </style>
 </head>
 <body>
@@ -171,29 +153,13 @@
       span.classList.add("floating-text");
       span.textContent = text;
 
-      // Sağdan mı soldan mı başlayacak rastgele belirle
-      const fromRight = Math.random() < 0.5;
-
-      if (fromRight) {
-        // Sağdan başla, sayfa sağından biraz dışarıda
-        span.style.right = '-100px';
-        span.style.left = 'auto';
-        // Animasyon floatDiagonalRight
-        const duration = Math.random() * 7 + 8; // 8-15 saniye arası
-        span.style.animation = `floatDiagonalRight ${duration}s linear forwards`;
-      } else {
-        // Soldan başla, sayfa solundan biraz dışarıda
-        span.style.left = '-100px';
-        span.style.right = 'auto';
-        // Animasyon floatDiagonalLeft
-        const duration = Math.random() * 7 + 8;
-        span.style.animation = `floatDiagonalLeft ${duration}s linear forwards`;
-      }
-
-      span.style.top = '0'; // Yukardan başla
+      // Ekranın ortasına dağınık şekilde yatay pozisyon belirle
+      const left = Math.random() * window.innerWidth;
+      span.style.left = left + "px";
 
       body.appendChild(span);
 
+      // Animasyon bittiğinde kaldır
       span.addEventListener("animationend", () => {
         span.remove();
       });
