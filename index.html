@@ -34,32 +34,31 @@
       z-index: -1;
     }
 
-    /* Sevgi Barı */
+    /* Sevgi barı */
     #love-bar-container {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      height: 25px;
+      height: 12px; /* küçültüldü */
       background-color: #ffe4ed;
-      box-shadow: inset 0 2px 5px rgba(216, 27, 96, 0.4);
-      border-radius: 0 0 12px 12px;
+      box-shadow: inset 0 1px 3px rgba(216, 27, 96, 0.4);
+      border-radius: 0 0 8px 8px;
       overflow: hidden;
       z-index: 1100;
     }
 
     #love-bar {
       height: 100%;
-      width: 10%; /* Başlangıç %10 */
+      width: 10%;
       background: linear-gradient(90deg, #d81b60, #ff4081);
       transition: width 1s ease;
     }
 
-    /* main üstten boşluk, bar için */
     main {
       max-width: 900px;
       margin: 0 auto;
-      padding: 60px 20px 20px 20px; /* üstte 60px boşluk verdik */
+      padding: 40px 20px 20px 20px; /* üstten boşluk sevgi barı için artırıldı */
       background: rgba(255, 255, 255, 0.85);
       border-radius: 15px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
@@ -170,12 +169,12 @@
 </head>
 <body>
 
+  <canvas id="rain-canvas"></canvas>
+  <button id="toggle-rain">🌧️ Yağmuru Kapat</button>
+
   <div id="love-bar-container">
     <div id="love-bar"></div>
   </div>
-
-  <canvas id="rain-canvas"></canvas>
-  <button id="toggle-rain">🌧️ Yağmuru Kapat</button>
 
   <main>
     <h1>Herşeyime Balıma 💗</h1>
@@ -247,68 +246,62 @@
       });
     }
 
-    function draw() {
+    function drawRain() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
       ctx.lineWidth = 1;
-      ctx.lineCap = 'round';
-
+      ctx.beginPath();
       for (let i = 0; i < drops.length; i++) {
-        let d = drops[i];
-        ctx.beginPath();
+        const d = drops[i];
         ctx.moveTo(d.x, d.y);
         ctx.lineTo(d.x + d.xs, d.y + d.l);
-        ctx.stroke();
+      }
+      ctx.stroke();
+      move();
+      animationId = requestAnimationFrame(drawRain);
+    }
 
+    function move() {
+      for (let i = 0; i < drops.length; i++) {
+        const d = drops[i];
         d.x += d.xs;
         d.y += d.ys;
-
         if (d.y > canvas.height) {
           d.x = Math.random() * canvas.width;
           d.y = -20;
         }
       }
-      animationId = requestAnimationFrame(draw);
     }
-    draw();
 
-    // Yağmur aç/kapa butonu
+    drawRain();
+
     const toggleBtn = document.getElementById('toggle-rain');
     toggleBtn.addEventListener('click', () => {
       rainOn = !rainOn;
       if (rainOn) {
-        draw();
-        toggleBtn.textContent = "🌧️ Yağmuru Kapat";
+        drawRain();
+        toggleBtn.textContent = '🌧️ Yağmuru Kapat';
+        canvas.style.display = 'block';
       } else {
         cancelAnimationFrame(animationId);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        toggleBtn.textContent = "🌧️ Yağmuru Aç";
+        toggleBtn.textContent = '☀️ Yağmuru Aç';
+        canvas.style.display = 'none';
       }
     });
 
-    // Sevgi Barı 1000 gün sonunda dolacak şekilde gerçek zamanlı
+    // Sevgi barı - 1000 gün sonunda dolacak
     const loveBar = document.getElementById('love-bar');
-    const totalDays = 1000;  // toplam 1000 gün
-    const startWidthPercent = 10;  // %10 başlangıç
+    const totalDays = 1000;
+    const startWidthPercent = 10; // Başlangıçta %10 dolu
+    const startDate = new Date('2024-05-22'); // Başlangıç tarihi, bugünün tarihini koyabilirsin
+    const now = new Date();
 
-    // Sevgi barının başlangıç tarihi (örneğin ilişkinin başladığı gün)
-    const startDate = new Date('2025-01-01'); // Bunu kendi başlangıç tarihinle değiştir
+    const daysPassed = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+    let widthPercent = startWidthPercent + ((100 - startWidthPercent) * (daysPassed / totalDays));
+    if (widthPercent > 100) widthPercent = 100;
 
-    function updateLoveBar() {
-      const now = new Date();
-      const diffTime = now - startDate; // milisaniye cinsinden fark
-      const diffDays = diffTime / (1000 * 60 * 60 * 24); // günü hesapla
-      let progress = diffDays / totalDays;
+    loveBar.style.width = widthPercent + '%';
 
-      if (progress < 0) progress = 0; // henüz başlamadıysa 0
-      if (progress > 1) progress = 1;  // dolmuşsa 1
-
-      const widthPercent = startWidthPercent + progress * (100 - startWidthPercent);
-      loveBar.style.width = widthPercent + '%';
-    }
-
-    updateLoveBar();
-    setInterval(updateLoveBar, 1000 * 60 * 60); // 1 saatte bir güncelle
   </script>
 </body>
 </html>
