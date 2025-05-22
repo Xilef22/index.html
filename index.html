@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Herşeyime Balıma.</title>
-  <link rel="icon" href="https://i.hizliresim.com/bu7t9sk.jpg" type="image/jpeg" />
   <style>
     *, *::before, *::after {
       box-sizing: border-box;
@@ -35,9 +34,50 @@
       z-index: -1;
     }
 
+    /* --- Sevgi Barı Alanı --- */
+    #love-bar-container {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 900px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      padding: 8px 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      z-index: 20;
+      user-select: none;
+    }
+
+    #love-bar-title {
+      font-weight: bold;
+      color: #d81b60;
+      margin: 0 0 6px 0;
+      font-size: 1.1em;
+      text-align: center;
+    }
+
+    #love-bar {
+      width: 100%;
+      background: #f4c1d5;
+      border-radius: 8px;
+      height: 15px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(255,255,255,0.6);
+    }
+
+    #love-bar-fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #d81b60, #ff5599);
+      border-radius: 8px;
+      transition: width 1s ease-in-out;
+    }
+
     main {
       max-width: 900px;
-      margin: 0 auto;
+      margin: 80px auto 0 auto; /* üstte sevgi barına yer açıldı */
       padding: 20px;
       background: rgba(255, 255, 255, 0.85);
       border-radius: 15px;
@@ -145,41 +185,6 @@
     #toggle-rain:hover {
       background-color: #ffe4ed;
     }
-
-    /* Sevgi bar */
-    #love-bar-container {
-      max-width: 900px;
-      margin: 0 auto 15px auto;
-      padding: 5px 15px;
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(216, 27, 96, 0.3);
-      text-align: center;
-      font-weight: 600;
-      color: #d81b60;
-      font-size: 1.2em;
-      position: relative;
-      top: 0;
-      left: 0;
-      z-index: 20;
-    }
-
-    #love-bar {
-      width: 100%;
-      height: 12px;
-      background-color: #ffb6c1;
-      border-radius: 6px;
-      overflow: hidden;
-      margin-top: 5px;
-    }
-
-    #love-bar-fill {
-      height: 100%;
-      width: 0;
-      background-color: #d81b60;
-      border-radius: 6px;
-      transition: width 0.5s ease;
-    }
   </style>
 </head>
 <body>
@@ -187,8 +192,9 @@
   <canvas id="rain-canvas"></canvas>
   <button id="toggle-rain">🌧️ Yağmuru Kapat</button>
 
+  <!-- Sevgi Barı -->
   <div id="love-bar-container">
-    Aşkımın Barı
+    <div id="love-bar-title">Aşkımın Barı</div>
     <div id="love-bar">
       <div id="love-bar-fill"></div>
     </div>
@@ -220,7 +226,6 @@
       allow="autoplay; encrypted-media" 
       allowfullscreen>
     </iframe>
-
   </main>
 
   <script>
@@ -308,15 +313,15 @@
       }
     });
 
-    // Sevgi bar kodu (1000 gün sonunda dolacak)
+    // Sevgi Barı Gün Hesabı ve Doldurma
     const loveBarFill = document.getElementById('love-bar-fill');
     const startValue = 100;
     const maxValue = 1000;
     const now = new Date();
-    const startDate = new Date('2022-01-01'); // İstersen burayı başlama tarihi olarak değiştir
+    const startDate = new Date('2022-01-01'); // Başlangıç tarihi (istediğin gibi değiştir)
     const diffDays = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
-    let loveValue = startValue + ((maxValue - startValue) / 1000) * diffDays;
-    if (loveValue > maxValue) loveValue = maxValue;
+    const limitedDays = Math.min(diffDays, 1000);
+    const loveValue = startValue + ((maxValue - startValue) / 1000) * limitedDays;
     const percentage = ((loveValue - startValue) / (maxValue - startValue)) * 100;
     loveBarFill.style.width = percentage + '%';
 
