@@ -81,25 +81,25 @@
       display: block;
     }
 
-    /* Düz şekilde aşağı kayan yazı stili */
     .floating-text {
       position: fixed;
-      top: -50px;
+      left: 50%;
+      transform: translateX(-50%);
       font-weight: bold;
       color: #d81b60cc;
       font-size: 1.4em;
       white-space: nowrap;
       user-select: none;
       text-shadow: 0 0 5px #d81b60dd;
-      opacity: 0.9;
+      opacity: 0.8;
       pointer-events: none;
       z-index: 1000;
-      animation: floatDown 10s linear forwards;
+      animation: floatDown linear forwards;
     }
 
     @keyframes floatDown {
       0% {
-        transform: translateY(-10vh);
+        transform: translateX(-50%) translateY(-10vh);
         opacity: 0;
       }
       10% {
@@ -109,13 +109,47 @@
         opacity: 1;
       }
       100% {
-        transform: translateY(110vh);
+        transform: translateX(-50%) translateY(100vh);
         opacity: 0;
       }
+    }
+
+    /* Yağmur efekti stilleri */
+    #rain-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    #toggle-rain {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 1001;
+      background-color: #fff;
+      color: #d81b60;
+      border: 2px solid #d81b60;
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: background-color 0.3s ease;
+    }
+
+    #toggle-rain:hover {
+      background-color: #ffe4ed;
     }
   </style>
 </head>
 <body>
+
+  <canvas id="rain-canvas"></canvas>
+  <button id="toggle-rain">🌧️ Yağmuru Kapat</button>
 
   <main>
     <h1>Herşeyime Balıma 💗</h1>
@@ -144,6 +178,7 @@
   </main>
 
   <script>
+    // Kayan yazılar
     const texts = ["Seni seviyorum", "Balım", "Seni yerim", "Aşığım", "Aşkım"];
     const body = document.body;
 
@@ -152,21 +187,80 @@
       const span = document.createElement("span");
       span.classList.add("floating-text");
       span.textContent = text;
-
-      // Ekranın ortasına dağınık şekilde yatay pozisyon belirle
-      const left = Math.random() * window.innerWidth;
-      span.style.left = left + "px";
-
+      span.style.top = "0";
       body.appendChild(span);
-
-      // Animasyon bittiğinde kaldır
-      span.addEventListener("animationend", () => {
-        span.remove();
-      });
+      span.addEventListener("animationend", () => span.remove());
     }
 
     setInterval(createFloatingText, 700);
-  </script>
 
+    // Yağmur efekti
+    const canvas = document.getElementById('rain-canvas');
+    const ctx = canvas.getContext('2d');
+    const drops = [];
+    let animationId;
+    let rainOn = true;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    for (let i = 0; i < 150; i++) {
+      drops.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        l: Math.random() * 20 + 10,
+        xs: Math.random() * 2 - 1,
+        ys: Math.random() * 10 + 10
+      });
+    }
+
+    function drawRain() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let i = 0; i < drops.length; i++) {
+        const d = drops[i];
+        ctx.moveTo(d.x, d.y);
+        ctx.lineTo(d.x + d.xs, d.y + d.l);
+      }
+      ctx.stroke();
+      move();
+      animationId = requestAnimationFrame(drawRain);
+    }
+
+    function move() {
+      for (let i = 0; i < drops.length; i++) {
+        const d = drops[i];
+        d.x += d.xs;
+        d.y += d.ys;
+        if (d.y > canvas.height) {
+          d.x = Math.random() * canvas.width;
+          d.y = -20;
+        }
+      }
+    }
+
+    drawRain();
+
+    const toggleBtn = document.getElementById('toggle-rain');
+    toggleBtn.addEventListener('click', () => {
+      rainOn = !rainOn;
+      if (rainOn) {
+        drawRain();
+        toggleBtn.textContent = '🌧️ Yağmuru Kapat';
+        canvas.style.display = 'block';
+      } else {
+        cancelAnimationFrame(animationId);
+        toggleBtn.textContent = '☀️ Yağmuru Aç';
+        canvas.style.display = 'none';
+      }
+    });
+  </script>
 </body>
 </html>
