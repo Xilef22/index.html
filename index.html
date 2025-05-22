@@ -34,36 +34,48 @@
       z-index: -1;
     }
 
-    /* Sevgi barı */
-    #love-bar-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 12px; /* küçültüldü */
-      background-color: #ffe4ed;
-      box-shadow: inset 0 1px 3px rgba(216, 27, 96, 0.4);
-      border-radius: 0 0 8px 8px;
-      overflow: hidden;
-      z-index: 1100;
-    }
-
-    #love-bar {
-      height: 100%;
-      width: 10%;
-      background: linear-gradient(90deg, #d81b60, #ff4081);
-      transition: width 1s ease;
-    }
-
     main {
       max-width: 900px;
       margin: 0 auto;
-      padding: 40px 20px 20px 20px; /* üstten boşluk sevgi barı için artırıldı */
+      padding: 20px;
       background: rgba(255, 255, 255, 0.85);
       border-radius: 15px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
       position: relative;
       z-index: 10;
+    }
+
+    /* Sevgi Barı kapsayıcısı */
+    #love-bar-wrapper {
+      max-width: 900px;
+      margin: 0 auto 15px auto;
+      text-align: center;
+      user-select: none;
+    }
+
+    #love-bar-label {
+      font-weight: bold;
+      color: #d81b60;
+      margin-bottom: 6px;
+      font-size: 1em;
+      letter-spacing: 0.05em;
+    }
+
+    #love-bar-container {
+      width: 100%;
+      height: 12px;
+      background-color: #ffe4ed;
+      box-shadow: inset 0 1px 3px rgba(216, 27, 96, 0.4);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    #love-bar {
+      height: 100%;
+      width: 10%; /* Başlangıç değeri, JS ile güncellenecek */
+      background: linear-gradient(90deg, #d81b60, #ff4081);
+      transition: width 1s ease;
+      border-radius: 8px 0 0 8px;
     }
 
     h1 {
@@ -172,11 +184,15 @@
   <canvas id="rain-canvas"></canvas>
   <button id="toggle-rain">🌧️ Yağmuru Kapat</button>
 
-  <div id="love-bar-container">
-    <div id="love-bar"></div>
-  </div>
-
   <main>
+    <!-- Sevgi barı burada, başlığın hemen üstünde -->
+    <div id="love-bar-wrapper">
+      <div id="love-bar-label">Aşkımın Barı</div>
+      <div id="love-bar-container">
+        <div id="love-bar"></div>
+      </div>
+    </div>
+
     <h1>Herşeyime Balıma 💗</h1>
 
     <p>Bu sayfa, sana olan sevgimi kelimelere dökebilmek için yaptım.</p>
@@ -202,6 +218,7 @@
       allow="autoplay; encrypted-media" 
       allowfullscreen>
     </iframe>
+
   </main>
 
   <script>
@@ -292,8 +309,8 @@
     // Sevgi barı - 1000 gün sonunda dolacak
     const loveBar = document.getElementById('love-bar');
     const totalDays = 1000;
-    const startWidthPercent = 10; // Başlangıçta %10 dolu
-    const startDate = new Date('2024-05-22'); // Başlangıç tarihi, bugünün tarihini koyabilirsin
+    const startWidthPercent = 10; // Başlangıç %10
+    const startDate = new Date('2024-05-22'); // Başlangıç tarihi
     const now = new Date();
 
     const daysPassed = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
