@@ -34,38 +34,6 @@
       z-index: -1;
     }
 
-    /* Sevgi Barı Stilleri */
-    #love-bar-container {
-      width: 90%;
-      max-width: 400px;
-      height: 25px;
-      background: #eee;
-      border-radius: 15px;
-      margin: 20px auto 10px auto;
-      box-shadow: 0 0 5px #d81b60cc inset;
-      position: relative;
-      z-index: 20;
-    }
-
-    #love-bar {
-      height: 100%;
-      width: 10%; /* Başlangıç %10 */
-      background: linear-gradient(90deg, #d81b60, #ff6ea1);
-      border-radius: 15px;
-      transition: width 1.5s ease;
-    }
-
-    #love-bar-label {
-      text-align: center;
-      font-weight: bold;
-      color: #d81b60;
-      margin: 0 0 15px 0;
-      font-size: 1.1em;
-      user-select: none;
-      position: relative;
-      z-index: 20;
-    }
-
     main {
       max-width: 900px;
       margin: 0 auto;
@@ -176,19 +144,41 @@
     #toggle-rain:hover {
       background-color: #ffe4ed;
     }
+
+    /* Sevgi Barı */
+    #love-bar-label {
+      font-weight: bold;
+      color: #d81b60;
+      font-size: 1.2em;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #love-bar-container {
+      width: 100%;
+      max-width: 600px;
+      height: 30px;
+      background-color: #ffe4ed;
+      border-radius: 20px;
+      margin: 10px auto 30px auto;
+      box-shadow: inset 0 2px 5px rgba(216, 27, 96, 0.4);
+      overflow: hidden;
+    }
+
+    #love-bar {
+      height: 100%;
+      width: 10%; /* Başlangıçta %10 */
+      background: linear-gradient(90deg, #d81b60, #ff4081);
+      border-radius: 20px;
+      transition: width 1s ease;
+    }
+
   </style>
 </head>
 <body>
 
   <canvas id="rain-canvas"></canvas>
   <button id="toggle-rain">🌧️ Yağmuru Kapat</button>
-
-  <!-- Sevgi Barı -->
-  <div id="love-bar-container"></div>
-  <div id="love-bar-label">Sevgi Barı 💗</div>
-  <div id="love-bar-container">
-    <div id="love-bar"></div>
-  </div>
 
   <main>
     <h1>Herşeyime Balıma 💗</h1>
@@ -197,6 +187,12 @@
     <p>Her anımda sen varsın. Gülüşün, sesin, varlığın… Hepsi içimi ısıtan bir güneş gibi.</p>
     <p>Bu site, beraber geçirdiğimiz güzel anılardan birkaç tanesini bir araya getirdiğim küçük bir hatıra.</p>
     <p>Hep yanımda ol, hep benimle kal... Seni çok seviyorum. Affet beni balım. 🥺</p>
+
+    <!-- Sevgi Barı -->
+    <div id="love-bar-label">Aşkımın barı 💗</div>
+    <div id="love-bar-container">
+      <div id="love-bar"></div>
+    </div>
 
     <div class="gallery">
       <img src="https://i.hizliresim.com/87uxom4.jpg" alt="seni" />
@@ -216,7 +212,6 @@
       allow="autoplay; encrypted-media" 
       allowfullscreen>
     </iframe>
-
   </main>
 
   <script>
@@ -257,86 +252,72 @@
         y: Math.random() * canvas.height,
         l: Math.random() * 20 + 10,
         xs: Math.random() * 2 - 1,
-        ys: Math.random() * 5 + 4
+        ys: Math.random() * 10 + 10
       });
     }
 
-    function draw() {
+    function drawRain() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
       ctx.lineWidth = 1;
-      ctx.lineCap = 'round';
-
+      ctx.beginPath();
       for (let i = 0; i < drops.length; i++) {
-        let d = drops[i];
-        ctx.beginPath();
+        const d = drops[i];
         ctx.moveTo(d.x, d.y);
-        ctx.lineTo(d.x + d.xs * d.l * 0.5, d.y + d.ys * d.l);
-        ctx.stroke();
+        ctx.lineTo(d.x + d.xs, d.y + d.l);
+      }
+      ctx.stroke();
+      move();
+      animationId = requestAnimationFrame(drawRain);
+    }
 
+    function move() {
+      for (let i = 0; i < drops.length; i++) {
+        const d = drops[i];
         d.x += d.xs;
         d.y += d.ys;
-
         if (d.y > canvas.height) {
           d.x = Math.random() * canvas.width;
           d.y = -20;
         }
-        if (d.x > canvas.width) {
-          d.x = 0;
-        }
-        if (d.x < 0) {
-          d.x = canvas.width;
-        }
       }
-
-      animationId = requestAnimationFrame(draw);
     }
 
-    draw();
+    drawRain();
 
-    document.getElementById('toggle-rain').addEventListener('click', () => {
+    const toggleBtn = document.getElementById('toggle-rain');
+    toggleBtn.addEventListener('click', () => {
+      rainOn = !rainOn;
       if (rainOn) {
-        cancelAnimationFrame(animationId);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        rainOn = false;
-        document.getElementById('toggle-rain').textContent = "🌧️ Yağmuru Aç";
+        drawRain();
+        toggleBtn.textContent = '🌧️ Yağmuru Kapat';
+        canvas.style.display = 'block';
       } else {
-        rainOn = true;
-        draw();
-        document.getElementById('toggle-rain').textContent = "🌧️ Yağmuru Kapat";
+        cancelAnimationFrame(animationId);
+        toggleBtn.textContent = '☀️ Yağmuru Aç';
+        canvas.style.display = 'none';
       }
     });
 
+    // Sevgi Barı kodu
+    const loveBar = document.getElementById('love-bar');
+    const totalDays = 1000;
+    const startWidthPercent = 10; // %10 başlangıç
+    const endWidthPercent = 100; // %100 sonunda
 
-    // Sevgi Barı Scripti
-    const startPercent = 10; // %10 başlangıç
-    const totalDays = 1000;  // toplam gün sayısı
-    const maxPercent = 100;  // %100 doluluk
+    // Bugünün gün sayısı (örnek, bugün başlangıç kabul edelim)
+    // Sen istersen gerçek tarih farkı hesaplatabilirim
+    let daysPassed = 0;
 
-    // Günlük artış miktarı
-    const dailyIncrease = (maxPercent - startPercent) / totalDays;
-
-    // Başlangıç tarihi localStorage'da saklanıyor, yoksa bugünün tarihi
-    const startDateStr = localStorage.getItem('loveBarStartDate') || new Date().toISOString().slice(0,10);
-
-    if (!localStorage.getItem('loveBarStartDate')) {
-      localStorage.setItem('loveBarStartDate', startDateStr);
+    function updateLoveBar() {
+      daysPassed++;
+      if (daysPassed > totalDays) daysPassed = totalDays;
+      const widthPercent = startWidthPercent + ((endWidthPercent - startWidthPercent) * (daysPassed / totalDays));
+      loveBar.style.width = widthPercent + "%";
     }
 
-    const startDate = new Date(startDateStr);
-    const today = new Date();
-
-    const diffTime = today.getTime() - startDate.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    let currentPercent = startPercent + (dailyIncrease * diffDays);
-
-    if (currentPercent > maxPercent) currentPercent = maxPercent;
-
-    const loveBar = document.getElementById('love-bar');
-    loveBar.style.width = currentPercent + '%';
-
+    // 1 gün = 1000 ms olarak hızlı gösterim (normalde 1 gün 86400000 ms)
+    setInterval(updateLoveBar, 1000);
   </script>
-
 </body>
 </html>
